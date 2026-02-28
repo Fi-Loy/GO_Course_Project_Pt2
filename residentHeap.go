@@ -2,12 +2,14 @@ package main
 
 import (
 	"container/heap"
-	"fmt"
+	//"fmt"
 )
+
+// Large parts of this code are lifted from the Data Structres and Algoritms in GO resource provided in BS
 
 type resRank struct {
 	rank int
-	res  *Resident
+	rid  int
 }
 
 // residentHeap is a min-heap of ints
@@ -23,6 +25,7 @@ func (h residentHeap) Swap(i, j int) {
 	h[i], h[j] = h[j], h[i]
 }
 func (h *residentHeap) Push(x any) {
+	heap.Init(h)
 	*h = append(*h, x.(resRank))
 }
 func (h *residentHeap) Pop() any {
@@ -54,17 +57,19 @@ func heapSort(values []int) []int {
 	return sorted
 }
 
+/* testing artifact
 func main() {
 	rol := []string{"t", "g"}
 	res1 := Resident{2, "David", "bungalo", rol, ""}
 	res2 := Resident{2, "Jerry", "bungalo", rol, ""}
 	res3 := Resident{3, "Todd", "bungalo", rol, ""}
-	//res4 := Resident{4, "Bill", "bungalo", rol, ""}
+	res4 := Resident{4, "Bill", "bungalo", rol, ""}
 	h := &residentHeap{{1, &res1}, {0, &res2}, {3, &res3}}
 	heap.Init(h)
-	//heap.Push(h, resRank{2, &res4})
+	heap.Push(h, resRank{2, &res4})
 	fmt.Printf("minimum: %d\n", h.Peek())
 	for h.Len() > 0 {
 		fmt.Printf("%d ", heap.Pop(h))
 	}
 }
+*/

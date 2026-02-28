@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // The Resident data type
@@ -21,9 +22,9 @@ type Resident struct {
 type Program struct {
 	programID         string
 	name              string
-	nPositions        int          // number of positions available (quota)
-	rol               []int        // program rank order list
-	selectedResidents residentHeap // TO ADD: a data structure for the selected resident IDs
+	nPositions        int   // number of positions available (quota)
+	rol               []int // program rank order list
+	selectedResidents *residentHeap
 }
 
 // Parse a resident's ROL
@@ -153,10 +154,16 @@ func ReadProgramsCSV(filename string) (map[string]*Program, error) {
 
 	}
 
+	programs[""] = &Program{
+		programID:  "XXX",
+		name:       "NOT_MATCHED",
+		nPositions: 0,
+		rol:        []int{0},
+	}
+
 	return programs, nil
 }
 
-/*
 // Example usage
 func main() {
 
@@ -181,6 +188,33 @@ func main() {
 		fmt.Printf("ID: %s, Name: %s, Number of pos: %d, Number of applicants: %d\n", p.programID, p.name, p.nPositions, len(p.rol))
 	}
 
-	fmt.Printf("\nNMD: %v", programs["NMD"])
+	//TODO: uncomment this line fmt.Printf("\nNMD: %v", programs["NMD"])
+	fmt.Printf("\nMMI: %v", programs["MMI"])
+
+	start := time.Now()
+
+	//fmt.Println("\nright before McVittieWilson")
+	McVittieWilson(residents, programs)
+	//fmt.Println("right after McVittieWilson")
+
+	end := time.Now()
+
+	var unmatched int
+	fmt.Println("\n\nlastname, firstname, residentID, programID, name")
+	for _, r := range residents {
+		fmt.Printf("\n%s, %s, %d, %s, %s, ", r.lastname, r.firstname, r.residentID, programs[r.matchedProgram].programID, programs[r.matchedProgram].name)
+		if r.matchedProgram == "" {
+			unmatched++
+		}
+	}
+
+	/*
+		fmt.Println("\n\nid, name, numberofPos, rol")
+		for _, p := range programs {
+			fmt.Printf("\n%s, %s, %d, %v", p.programID, p.name, p.nPositions, p.rol)
+		}
+	*/
+
+	fmt.Printf("\n\nExecution Time: %s", end.Sub(start))
+
 }
-*/
