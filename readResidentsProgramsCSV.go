@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -16,6 +17,7 @@ type Resident struct {
 	lastname       string
 	rol            []string // resident rank order list
 	matchedProgram string   // will be "" for unmatched resident
+	lock           sync.Mutex
 }
 
 // The Program data type
@@ -25,6 +27,7 @@ type Program struct {
 	nPositions        int   // number of positions available (quota)
 	rol               []int // program rank order list
 	selectedResidents *residentHeap
+	lock              sync.Mutex
 }
 
 // Parse a resident's ROL
@@ -168,7 +171,7 @@ func ReadProgramsCSV(filename string) (map[string]*Program, error) {
 func main() {
 
 	// read residents
-	residents, err := ReadResidentsCSV("residents4000.csv")
+	residents, err := ReadResidentsCSV("residentsLarge.csv")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -178,7 +181,7 @@ func main() {
 		fmt.Printf("ID: %d, Name: %s %s, Rol: %v\n", p.residentID, p.firstname, p.lastname, p.rol)
 	}
 
-	programs, err := ReadProgramsCSV("programs4000.csv")
+	programs, err := ReadProgramsCSV("programsLarge.csv")
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -188,16 +191,15 @@ func main() {
 		fmt.Printf("ID: %s, Name: %s, Number of pos: %d, Number of applicants: %d\n", p.programID, p.name, p.nPositions, len(p.rol))
 	}
 
-	//TODO: uncomment this line fmt.Printf("\nNMD: %v", programs["NMD"])
-	fmt.Printf("\nMMI: %v", programs["MMI"])
+	fmt.Printf("\nNMD: %v", programs["NMD"])
+	//fmt.Printf("\nMMI: %v", programs["MMI"]) testing artifact
 
-	start := time.Now()
+	//Non-concurrent solution
+	startNonConCur := time.Now()
 
-	//fmt.Println("\nright before McVittieWilson")
-	McVittieWilson(residents, programs)
-	//fmt.Println("right after McVittieWilson")
+	McVittieWilson(residents, programs, true)
 
-	end := time.Now()
+	endNonConCur := time.Now()
 
 	var unmatched int
 	fmt.Println("\n\nlastname, firstname, residentID, programID, name")
@@ -215,6 +217,6 @@ func main() {
 		}
 	*/
 
-	fmt.Printf("\n\nExecution Time: %s", end.Sub(start))
+	fmt.Printf("\n\nExecution Time: %s\n", endNonConCur.Sub(startNonConCur))
 
 }
