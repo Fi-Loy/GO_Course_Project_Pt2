@@ -194,21 +194,37 @@ func main() {
 	fmt.Printf("\nNMD: %v", programs["NMD"])
 	//fmt.Printf("\nMMI: %v", programs["MMI"]) testing artifact
 
-	//Non-concurrent solution
-	startNonConCur := time.Now()
+	// McVittieWilson Solution
+	// set "concurrentFlag" to true for concurrent solution
+	// and false for non-concurrent solution
+	start := time.Now()
 
-	McVittieWilson(residents, programs, true)
+	McVittieWilson(residents, programs, false)
 
-	endNonConCur := time.Now()
+	end := time.Now()
+
+	file, err := os.Create("residnetLargeOutputConcurrent.csv")
+	if err != nil {
+	}
+	defer file.Close()
 
 	var unmatched int
-	fmt.Println("\n\nlastname, firstname, residentID, programID, name")
+	var availableProgs int
+	file.WriteString(fmt.Sprintln("\n\nlastname, firstname, residentID, programID, name"))
+
 	for _, r := range residents {
-		fmt.Printf("\n%s, %s, %d, %s, %s, ", r.lastname, r.firstname, r.residentID, programs[r.matchedProgram].programID, programs[r.matchedProgram].name)
+		file.WriteString(fmt.Sprintf("\n%s, %s, %d, %s, %s, ", r.lastname, r.firstname, r.residentID, programs[r.matchedProgram].programID, programs[r.matchedProgram].name))
 		if r.matchedProgram == "" {
 			unmatched++
 		}
 	}
+	for _, p := range programs {
+		availableProgs += p.nPositions
+	}
+
+	file.WriteString(fmt.Sprintf("\n\nNumer of unmatched residents: %d\n", unmatched))
+	file.WriteString(fmt.Sprintf("\nNumer of positions available: %d\n", availableProgs))
+	file.WriteString(fmt.Sprintf("\n\nExecution Time: %s\n", end.Sub(start)))
 
 	/*
 		fmt.Println("\n\nid, name, numberofPos, rol")
@@ -216,7 +232,5 @@ func main() {
 			fmt.Printf("\n%s, %s, %d, %v", p.programID, p.name, p.nPositions, p.rol)
 		}
 	*/
-
-	fmt.Printf("\n\nExecution Time: %s\n", endNonConCur.Sub(startNonConCur))
 
 }

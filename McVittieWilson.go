@@ -11,7 +11,7 @@ func McVittieWilson(r map[int]*Resident, p map[string]*Program, concurrentFlag b
 	//initialize heaps
 	for pid := range p {
 		p[pid].selectedResidents = &residentHeap{}
-		heap.Init(p[pid].selectedResidents)
+		//heap.Init(p[pid].selectedResidents)
 	}
 
 	var wg sync.WaitGroup
@@ -38,14 +38,14 @@ func offer(
 	defer wg.Done()
 
 	resident := residents[rid]
-	resident.lock.Lock()
+	//resident.lock.Lock()
 
 	if len(resident.rol) == 0 {
 		resident.matchedProgram = ""
 	} else {
 		pid := resident.rol[0]
 		resident.rol = resident.rol[1:]
-		resident.lock.Unlock()
+		//resident.lock.Unlock()
 		evaluate(rid, pid, residents, programs, concurrentFlag, wg)
 	}
 }
@@ -64,6 +64,7 @@ func evaluate(rid int, pid string,
 	r := residents[rid]
 	r.lock.Lock()
 
+	//find resident rank
 	for i := 0; i < len(p.rol); i++ {
 		if rid == p.rol[i] {
 			isIn = true
